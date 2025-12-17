@@ -64,13 +64,12 @@ document.getElementById('btn-export-pdf').addEventListener('click', async functi
 import { supabase } from './supabaseClient.js';
 
 // Checagem de sessão: só permite acesso se estiver logado
-(async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
+supabase.auth.getSession().then(({ data: { session }, error }) => {
     console.log('SESSION:', session, error);
     if (!session) {
         window.location.href = '/';
     }
-})();
+});
 // --- LÓGICA DO DASHBOARD ---
 // Função para obter os valores do fechamento
 function getFechamentoData() {
