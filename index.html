@@ -76,6 +76,7 @@
     function showDashboard() {
         loginView.style.display = 'none';
         dashboardView.style.display = 'block';
+        updateDashboard();
     }
     function showLogin() {
         dashboardView.style.display = 'none';
@@ -208,11 +209,7 @@
     if (dataFimInput) dataFimInput.addEventListener('change', updateDashboard);
 
     // Atualiza dashboard ao mostrar
-    function showDashboard() {
-        loginView.style.display = 'none';
-        dashboardView.style.display = 'block';
-        updateDashboard();
-    }
+    // (Removido: duplicidade de showDashboard)
     </script>
 </body>
 </html>
