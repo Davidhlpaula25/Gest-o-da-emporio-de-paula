@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Caixa - Distribuidora</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .active-tab { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: bold; }
+        .input-card { transition: all 0.2s; }
+        .input-card:focus-within { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center fixed w-full top-0 z-50">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-wine-bottle text-blue-600 text-2xl"></i>
+            <h1 class="text-xl font-bold text-slate-800">Distribuidora<span class="text-blue-600">Gestão</span></h1>
+        </div>
+        <div class="flex gap-6">
+            <button onclick="window.switchTab('input')" id="tab-input" class="active-tab pb-2 px-2 hover:text-blue-500 transition">
+                <i class="fas fa-cash-register mr-2"></i>Fechamento
+            </button>
+            <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="pb-2 px-2 text-slate-500 hover:text-blue-500 transition">
+                <i class="fas fa-chart-line mr-2"></i>Análise Gráfica
+            </button>
+        </div>
+    </nav>
+
+    <div class="h-24"></div>
+
+    <main id="view-input" class="container mx-auto px-4 pb-12">
+        <div class="flex flex-col md:flex-row gap-6">
+            
+            <div class="w-full md:w-2/3 space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-4 flex items-center text-slate-700"><i class="fas fa-coins mr-2 text-yellow-500"></i> Moedas</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div class="input-group"><label class="text-xs font-bold text-slate-500 block mb-1">R$ 0,05</label><div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card overflow-hidden"><input type="number" min="0" placeholder="Qtd" class="w-full p-2 bg-transparent outline-none calc-input" data-value="0.05"><div class="bg-slate-200 px-3 py-2 text-xs text-slate-600 font-mono result-span">R$ 0,00</div></div></div>
+                        <div class="input-group"><label class="text-xs font-bold text-slate-500 block mb-1">R$ 0,10</label><div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card overflow-hidden"><input type="number" min="0" placeholder="Qtd" class="w-full p-2 bg-transparent outline-none calc-input" data-value="0.10"><div class="bg-slate-200 px-3 py-2 text-xs text-slate-600 font-mono result-span">R$ 0,00</div></div></div>
+                        <div class="input-group"><label class="text-xs font-bold text-slate-500 block mb-1">R$ 0,25</label><div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card overflow-hidden"><input type="number" min="0" placeholder="Qtd" class="w-full p-2 bg-transparent outline-none calc-input" data-value="0.25"><div class="bg-slate-200 px-3 py-2 text-xs text-slate-600 font-mono result-span">R$ 0,00</div></div></div>
+                        <div class="input-group"><label class="text-xs font-bold text-slate-500 block mb-1">R$ 0,50</label><div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card overflow-hidden"><input type="number" min="0" placeholder="Qtd" class="w-full p-2 bg-transparent outline-none calc-input" data-value="0.50"><div class="bg-slate-200 px-3 py-2 text-xs text-slate-600 font-mono result-span">R$ 0,00</div></div></div>
+                        <div class="input-group"><label class="text-xs font-bold text-slate-500 block mb-1">R$ 1,00</label><div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card overflow-hidden"><input type="number" min="0" placeholder="Qtd" class="w-full p-2 bg-transparent outline-none calc-input" data-value="1.00"><div class="bg-slate-200 px-3 py-2 text-xs text-slate-600 font-mono result-span">R$ 0,00</div></div></div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-4 flex items-center text-slate-700"><i class="fas fa-money-bill-wave mr-2 text-green-600"></i> Cédulas</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                         <div class="input-group"><label class="text-xs font-bold text-slate-500 block mb-1">R$ 2,00</label><div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card overflow-hidden"><input type="number" min="0" placeholder="Qtd" class="w-full p-2 bg-transparent outline-none calc-input" data-value="2.00"><div class="bg-slate-200 px-3 py-2 text-xs text-slate-600 font-mono result-span">R$ 0,00</div></div></div>
+                         <div class="input-group"><label class="text-xs font-bold text-slate-500 block mb-1">R$ 5,00</label><div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card overflow-hidden"><input type="number" min="0" placeholder="Qtd" class="w-full p-2 bg-transparent outline-none calc-input" data-value="5.00"><div class="bg-slate-200 px-3 py-2 text-xs text-slate-600 font-mono result-span">R$ 0,00</div></div></div>
+                         <div class="input-group"><label class="text-xs font-bold text-slate-500 block mb-1">R$ 10,00</label><div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card overflow-hidden"><input type="number" min="0" placeholder="Qtd" class="w-full p-2 bg-transparent outline-none calc-input" data-value="10.00"><div class="bg-slate-200 px-3 py-2 text-xs text-slate-600 font-mono result-span">R$ 0,00</div></div></div>
+                         <div class="input-group"><label class="text-xs font-bold text-slate-500 block mb-1">R$ 20,00</label><div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card overflow-hidden"><input type="number" min="0" placeholder="Qtd" class="w-full p-2 bg-transparent outline-none calc-input" data-value="20.00"><div class="bg-slate-200 px-3 py-2 text-xs text-slate-600 font-mono result-span">R$ 0,00</div></div></div>
+                         <div class="input-group"><label class="text-xs font-bold text-slate-500 block mb-1">R$ 50,00</label><div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card overflow-hidden"><input type="number" min="0" placeholder="Qtd" class="w-full p-2 bg-transparent outline-none calc-input" data-value="50.00"><div class="bg-slate-200 px-3 py-2 text-xs text-slate-600 font-mono result-span">R$ 0,00</div></div></div>
+                         <div class="input-group"><label class="text-xs font-bold text-slate-500 block mb-1">R$ 100,00</label><div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card overflow-hidden"><input type="number" min="0" placeholder="Qtd" class="w-full p-2 bg-transparent outline-none calc-input" data-value="100.00"><div class="bg-slate-200 px-3 py-2 text-xs text-slate-600 font-mono result-span">R$ 0,00</div></div></div>
+                         <div class="input-group"><label class="text-xs font-bold text-slate-500 block mb-1">R$ 200,00</label><div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card overflow-hidden"><input type="number" min="0" placeholder="Qtd" class="w-full p-2 bg-transparent outline-none calc-input" data-value="200.00"><div class="bg-slate-200 px-3 py-2 text-xs text-slate-600 font-mono result-span">R$ 0,00</div></div></div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-4 flex items-center text-slate-700"><i class="fas fa-credit-card mr-2 text-blue-500"></i> Pagamentos Digitais</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 block mb-1">Cartão de Débito</label>
+                            <div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card">
+                                <span class="pl-3 text-slate-400">R$</span>
+                                <input type="number" step="0.01" class="w-full p-2 bg-transparent outline-none val-input" id="debito-input">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 block mb-1">Cartão de Crédito</label>
+                            <div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card">
+                                <span class="pl-3 text-slate-400">R$</span>
+                                <input type="number" step="0.01" class="w-full p-2 bg-transparent outline-none val-input" id="credito-input">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 block mb-1">Pix</label>
+                            <div class="flex items-center bg-slate-50 rounded-lg border border-slate-200 input-card">
+                                <span class="pl-3 text-slate-400">R$</span>
+                                <input type="number" step="0.01" class="w-full p-2 bg-transparent outline-none val-input" id="pix-input">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full md:w-1/3">
+                <div class="bg-slate-800 text-white p-6 rounded-xl shadow-xl sticky top-28">
+                    <h2 class="text-xl font-bold mb-6 border-b border-slate-600 pb-2">Resumo do Caixa</h2>
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between items-center text-slate-300">
+                            <span>Total Espécie (Dinheiro)</span>
+                            <span class="font-mono text-lg" id="total-money">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-300">
+                            <span>Total Cartões/Pix</span>
+                            <span class="font-mono text-lg" id="total-card">R$ 0,00</span>
+                        </div>
+                        <div class="h-px bg-slate-600 my-2"></div>
+                        <div class="flex justify-between items-center font-bold text-green-400 text-xl">
+                            <span>TOTAL GERAL</span>
+                            <span id="total-general">R$ 0,00</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="data-fechamento" class="block text-xs font-bold text-slate-300 mb-1">Data do Fechamento</label>
+                        <input type="date" id="data-fechamento" class="w-full bg-slate-700 text-white border border-slate-600 rounded px-3 py-2 outline-none focus:border-blue-400" />
+                    </div>
+                    <button id="btn-fechar-caixa" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg transform active:scale-95 flex justify-center items-center gap-2">
+                        <i class="fas fa-check-circle"></i> Fechar Caixa
+                    </button>
+                    <p class="text-center text-xs text-slate-500 mt-4">Data: <span id="current-date"></span></p>
+                    <!-- Modal de sucesso -->
+                    <div id="modal-sucesso" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+                        <div class="bg-white rounded-xl p-8 shadow-2xl text-center max-w-xs">
+                            <i class="fas fa-check-circle text-green-500 text-5xl mb-4"></i>
+                            <h2 class="text-2xl font-bold mb-2 text-slate-800">Caixa Fechado!</h2>
+                            <p class="text-slate-600 mb-4">Fechamento salvo com sucesso.</p>
+                            <button onclick="document.getElementById('modal-sucesso').classList.add('hidden')" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <main id="view-dashboard" class="container mx-auto px-4 pb-12 hidden">
+        <div class="bg-white p-4 rounded-xl shadow-sm mb-6 flex flex-wrap gap-4 items-center">
+            <span class="font-bold text-slate-600"><i class="fas fa-filter mr-2"></i>Filtrar por:</span>
+            <select id="period-filter" class="bg-slate-100 border-none rounded-lg px-4 py-2 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="semana">Esta Semana</option>
+                <option value="mes">Este Mês</option>
+                <option value="ano">Este Ano</option>
+                <option value="personalizado">Personalizado</option>
+            </select>
+            <div id="filtro-datas-personalizado" class="flex gap-2 items-center hidden">
+                <label class="text-slate-600 text-sm">De</label>
+                <input type="date" id="data-inicio-grafico" class="bg-slate-100 border-none rounded-lg px-2 py-2 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500" />
+                <label class="text-slate-600 text-sm">até</label>
+                <input type="date" id="data-fim-grafico" class="bg-slate-100 border-none rounded-lg px-2 py-2 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <button onclick="window.updateDashboard()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition ml-auto flex items-center gap-2 active:bg-blue-800">
+                <i class="fas fa-sync-alt"></i> Atualizar Dados
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+                <h3 class="text-slate-500 text-sm font-bold uppercase">Faturamento</h3>
+                <p class="text-3xl font-bold text-slate-800 mt-2" id="card-revenue">R$ 45.280,00</p>
+                <span class="text-green-500 text-sm font-bold" id="card-growth"><i class="fas fa-arrow-up"></i> 12% vs anterior</span>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
+                <h3 class="text-slate-500 text-sm font-bold uppercase">Ticket Médio</h3>
+                <p class="text-3xl font-bold text-slate-800 mt-2" id="card-ticket">R$ 185,50</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
+                <h3 class="text-slate-500 text-sm font-bold uppercase">Dinheiro vs Cartão</h3>
+                <p class="text-3xl font-bold text-slate-800 mt-2" id="card-split">60% / 40%</p>
+                <span class="text-slate-400 text-xs">Predominância em espécie</span>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-2 mb-4">
+            <button id="btn-export-excel" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition flex items-center" title="Baixar Excel">
+                <i class="fas fa-file-excel mr-2"></i> Excel
+            </button>
+            <button id="btn-export-pdf" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition flex items-center" title="Baixar PDF">
+                <i class="fas fa-file-pdf mr-2"></i> PDF
+            </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="font-bold text-slate-700 mb-4">Evolução de Vendas</h3>
+                <canvas id="salesChart"></canvas>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="font-bold text-slate-700 mb-4">Métodos de Pagamento</h3>
+                <div class="h-64 flex justify-center">
+                    <canvas id="paymentChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="./src/dashboard.js"></script>
+</body>
+</html>
