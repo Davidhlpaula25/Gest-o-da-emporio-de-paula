@@ -24,45 +24,112 @@
         <p id="error-msg" class="text-red-500 text-sm mt-4 text-center hidden"></p>
     </div>
     <div id="dashboard-view" style="display:none;">
-        <div class="p-8 max-w-4xl mx-auto">
+        <div class="p-8 max-w-6xl mx-auto">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-slate-800">Dashboard do Caixa</h2>
+                <div class="flex gap-4">
+                    <button id="tab-input" class="pb-2 px-2 text-slate-800 font-bold border-b-2 border-blue-600">Fechamento de Caixa</button>
+                    <button id="tab-dashboard" class="pb-2 px-2 text-slate-500 hover:text-blue-500 transition">Dashboard</button>
+                </div>
                 <button id="logout-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">Sair</button>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white rounded shadow p-4">
-                    <div class="text-slate-500 text-xs">Faturamento</div>
-                    <div id="card-revenue" class="text-xl font-bold text-slate-800">R$ 0,00</div>
-                </div>
-                <div class="bg-white rounded shadow p-4">
-                    <div class="text-slate-500 text-xs">Crescimento</div>
-                    <div id="card-growth" class="text-sm font-bold text-green-500"></div>
-                </div>
-                <div class="bg-white rounded shadow p-4">
-                    <div class="text-slate-500 text-xs">Ticket Médio</div>
-                    <div id="card-ticket" class="text-xl font-bold text-slate-800">R$ 0,00</div>
-                </div>
-                <div class="bg-white rounded shadow p-4">
-                    <div class="text-slate-500 text-xs">Dinheiro / Cartão</div>
-                    <div id="card-split" class="text-xl font-bold text-slate-800">0% / 0%</div>
-                </div>
-            </div>
-            <div class="flex flex-col md:flex-row gap-4 mb-6">
-                <div class="flex-1">
-                    <label class="block text-slate-700 text-sm mb-1">Período</label>
-                    <select id="period-filter" class="border rounded p-2 w-full">
-                        <option value="semana">Últimos 7 dias</option>
-                        <option value="mes">Este mês</option>
-                        <option value="ano">Este ano</option>
-                        <option value="personalizado">Personalizado</option>
-                    </select>
-                    <div id="filtro-datas-personalizado" class="flex gap-2 mt-2 hidden">
-                        <input type="date" id="data-inicio-grafico" class="border rounded p-2">
-                        <input type="date" id="data-fim-grafico" class="border rounded p-2">
+            <div id="view-input">
+                <!-- Calculadora de Caixa -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="md:col-span-2 space-y-4">
+                        <div class="bg-white rounded shadow p-4">
+                            <div class="font-bold mb-2">Moedas</div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div><label>0,05</label><input class="calc-input" data-value="0.05" type="number" min="0" value="0"></div>
+                                <div><label>0,10</label><input class="calc-input" data-value="0.10" type="number" min="0" value="0"></div>
+                                <div><label>0,25</label><input class="calc-input" data-value="0.25" type="number" min="0" value="0"></div>
+                                <div><label>0,50</label><input class="calc-input" data-value="0.50" type="number" min="0" value="0"></div>
+                                <div><label>1,00</label><input class="calc-input" data-value="1.00" type="number" min="0" value="0"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded shadow p-4">
+                            <div class="font-bold mb-2">Cédulas</div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div><label>2</label><input class="calc-input" data-value="2" type="number" min="0" value="0"></div>
+                                <div><label>5</label><input class="calc-input" data-value="5" type="number" min="0" value="0"></div>
+                                <div><label>10</label><input class="calc-input" data-value="10" type="number" min="0" value="0"></div>
+                                <div><label>20</label><input class="calc-input" data-value="20" type="number" min="0" value="0"></div>
+                                <div><label>50</label><input class="calc-input" data-value="50" type="number" min="0" value="0"></div>
+                                <div><label>100</label><input class="calc-input" data-value="100" type="number" min="0" value="0"></div>
+                                <div><label>200</label><input class="calc-input" data-value="200" type="number" min="0" value="0"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded shadow p-4">
+                            <div class="font-bold mb-2">Pagamentos Digitais</div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div><label>Cartão de Débito</label><input class="val-input" id="debito-input" type="number" min="0" value="0"></div>
+                                <div><label>Cartão de Crédito</label><input class="val-input" id="credito-input" type="number" min="0" value="0"></div>
+                                <div><label>Pix</label><input class="val-input" id="pix-input" type="number" min="0" value="0"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800 text-white rounded shadow p-6 flex flex-col justify-between">
+                        <div>
+                            <div class="font-bold text-lg mb-2">Resumo de Caixa</div>
+                            <div class="flex justify-between"><span>Total Caixa (dinheiro)</span><span id="total-money">R$ 0,00</span></div>
+                            <div class="flex justify-between"><span>Total Cartões</span><span id="total-card">R$ 0,00</span></div>
+                            <div class="flex justify-between font-bold text-green-400 mt-2"><span>TOTAL GERAL</span><span id="total-general">R$ 0,00</span></div>
+                        </div>
+                        <button id="btn-fechar-caixa" class="mt-6 bg-green-600 w-full py-2 rounded text-white font-bold hover:bg-green-700 transition">Fechar Caixa</button>
+                        <div id="modal-sucesso" class="hidden mt-4 text-center text-green-500 font-bold">Fechamento salvo com sucesso!</div>
                     </div>
                 </div>
             </div>
-            <!-- Aqui podem ser adicionados gráficos ou tabelas futuramente -->
+            <div class="mt-8 text-right text-xs text-slate-400">Use as setas → para alternar entre as abas.</div>
+            </div>
+            <div id="view-dashboard" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded shadow p-4">
+                        <div class="text-slate-500 text-xs">Faturamento</div>
+                        <div id="card-revenue" class="text-xl font-bold text-slate-800">R$ 0,00</div>
+                    </div>
+                    <div class="bg-white rounded shadow p-4">
+                        <div class="text-slate-500 text-xs">Crescimento</div>
+                        <div id="card-growth" class="text-sm font-bold text-green-500"></div>
+                    </div>
+                    <div class="bg-white rounded shadow p-4">
+                        <div class="text-slate-500 text-xs">Ticket Médio</div>
+                        <div id="card-ticket" class="text-xl font-bold text-slate-800">R$ 0,00</div>
+                    </div>
+                    <div class="bg-white rounded shadow p-4">
+                        <div class="text-slate-500 text-xs">Dinheiro / Cartão</div>
+                        <div id="card-split" class="text-xl font-bold text-slate-800">0% / 0%</div>
+                    </div>
+                </div>
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="flex-1">
+                        <label class="block text-slate-700 text-sm mb-1">Período</label>
+                        <select id="period-filter" class="border rounded p-2 w-full">
+                            <option value="semana">Últimos 7 dias</option>
+                            <option value="mes">Este mês</option>
+                            <option value="ano">Este ano</option>
+                            <option value="personalizado">Personalizado</option>
+                        </select>
+                        <div id="filtro-datas-personalizado" class="flex gap-2 mt-2 hidden">
+                            <input type="date" id="data-inicio-grafico" class="border rounded p-2">
+                            <input type="date" id="data-fim-grafico" class="border rounded p-2">
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <button id="btn-export-excel" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Exportar Excel</button>
+                        <button id="btn-export-pdf" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Exportar PDF</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white rounded shadow p-4">
+                        <div class="font-bold mb-2">Evolução de Vendas (Semana)</div>
+                        <canvas id="salesChart" height="120"></canvas>
+                    </div>
+                    <div class="bg-white rounded shadow p-4">
+                        <div class="font-bold mb-2">Métodos de Pagamento</div>
+                        <canvas id="paymentChart" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <script type="module">
@@ -72,18 +139,57 @@
     const form = document.getElementById('login-form');
     const errorMsg = document.getElementById('error-msg');
     const logoutBtn = document.getElementById('logout-btn');
+    import { supabase } from '/src/supabaseClient.js';
+    import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+    import * as XLSX from 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm';
+    import jsPDF from 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm';
+    import autoTable from 'https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/+esm';
 
+    // Elementos principais
+    const loginView = document.getElementById('login-view');
+    const dashboardView = document.getElementById('dashboard-view');
+    const form = document.getElementById('login-form');
+    const errorMsg = document.getElementById('error-msg');
+    const logoutBtn = document.getElementById('logout-btn');
+    const tabInput = document.getElementById('tab-input');
+    const tabDashboard = document.getElementById('tab-dashboard');
+    const viewInput = document.getElementById('view-input');
+    const viewDashboard = document.getElementById('view-dashboard');
+
+    // Alternância de abas
+    function switchTab(tab) {
+        if (tab === 'input') {
+            viewInput.classList.remove('hidden');
+            viewDashboard.classList.add('hidden');
+            tabInput.className = 'pb-2 px-2 text-slate-800 font-bold border-b-2 border-blue-600';
+            tabDashboard.className = 'pb-2 px-2 text-slate-500 hover:text-blue-500 transition';
+        } else {
+            viewInput.classList.add('hidden');
+            viewDashboard.classList.remove('hidden');
+            tabInput.className = 'pb-2 px-2 text-slate-500 hover:text-blue-500 transition';
+            tabDashboard.className = 'pb-2 px-2 text-slate-800 font-bold border-b-2 border-blue-600';
+            updateDashboard();
+        }
+    }
+    tabInput.addEventListener('click', () => switchTab('input'));
+    tabDashboard.addEventListener('click', () => switchTab('dashboard'));
+    // Atalho seta → e ←
+    document.addEventListener('keydown', (e) => {
+        if (dashboardView.style.display !== 'block') return;
+        if (e.key === 'ArrowRight') switchTab('dashboard');
+        if (e.key === 'ArrowLeft') switchTab('input');
+    });
+
+    // Login e sessão
     function showDashboard() {
         loginView.style.display = 'none';
         dashboardView.style.display = 'block';
-        updateDashboard();
+        switchTab('input');
     }
     function showLogin() {
         dashboardView.style.display = 'none';
         loginView.style.display = 'block';
     }
-
-    // Checagem de sessão ao carregar
     supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) {
             showDashboard();
@@ -91,7 +197,6 @@
             showLogin();
         }
     });
-
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('email').value.trim();
@@ -105,18 +210,69 @@
             showDashboard();
         }
     });
-
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             await supabase.auth.signOut();
             showLogin();
         });
     }
-    // --- DASHBOARD: Buscar e exibir dados reais ---
+
+    // --- CALCULADORA DE CAIXA ---
     function formatCurrency(value) {
         return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
+    const moneyInputs = document.querySelectorAll('.calc-input');
+    const valInputs = document.querySelectorAll('.val-input');
+    function calculateTotals() {
+        let totalMoney = 0;
+        let totalCard = 0;
+        moneyInputs.forEach(input => {
+            const qty = parseFloat(input.value) || 0;
+            const value = parseFloat(input.dataset.value);
+            totalMoney += qty * value;
+        });
+        valInputs.forEach(input => {
+            totalCard += parseFloat(input.value) || 0;
+        });
+        document.getElementById('total-money').innerText = formatCurrency(totalMoney);
+        document.getElementById('total-card').innerText = formatCurrency(totalCard);
+        document.getElementById('total-general').innerText = formatCurrency(totalMoney + totalCard);
+    }
+    moneyInputs.forEach(input => input.addEventListener('input', calculateTotals));
+    valInputs.forEach(input => input.addEventListener('input', calculateTotals));
 
+    // --- FECHAMENTO DE CAIXA ---
+    function getFechamentoData() {
+        let totalMoney = 0;
+        moneyInputs.forEach(input => {
+            const qty = parseFloat(input.value) || 0;
+            const value = parseFloat(input.dataset.value);
+            totalMoney += qty * value;
+        });
+        let debito = parseFloat(document.getElementById('debito-input')?.value) || 0;
+        let credito = parseFloat(document.getElementById('credito-input')?.value) || 0;
+        let pix = parseFloat(document.getElementById('pix-input')?.value) || 0;
+        let totalCard = debito + credito + pix;
+        let totalGeneral = totalMoney + totalCard;
+        return { total_money: totalMoney, debito, credito, pix, total_card: totalCard, total_general: totalGeneral };
+    }
+    async function fecharCaixa() {
+        const hoje = new Date().toISOString().split('T')[0];
+        const valores = getFechamentoData();
+        const { error } = await supabase.from('fechamentos').insert([
+            { data: hoje, ...valores }
+        ]);
+        if (!error) {
+            document.getElementById('modal-sucesso').classList.remove('hidden');
+            setTimeout(() => document.getElementById('modal-sucesso').classList.add('hidden'), 2000);
+        } else {
+            alert('Erro ao salvar fechamento: ' + error.message);
+        }
+        updateDashboard();
+    }
+    document.getElementById('btn-fechar-caixa').addEventListener('click', fecharCaixa);
+
+    // --- DASHBOARD: BUSCA E GRÁFICOS ---
     async function fetchFechamentos(periodo, dataInicio = null, dataFim = null) {
         let fromDate = new Date();
         let toDate = new Date();
@@ -142,7 +298,21 @@
         if (error) return [];
         return data;
     }
-
+    let salesChart, paymentChart;
+    function initCharts() {
+        const ctxSales = document.getElementById('salesChart').getContext('2d');
+        salesChart = new Chart(ctxSales, {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: 'Vendas (R$)', data: [], backgroundColor: '#2563eb', borderRadius: 5 }] },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+        const ctxPayment = document.getElementById('paymentChart').getContext('2d');
+        paymentChart = new Chart(ctxPayment, {
+            type: 'doughnut',
+            data: { labels: ['Dinheiro', 'Débito', 'Crédito', 'Pix'], datasets: [{ data: [], backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#6366f1'], borderWidth: 0 }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
     async function updateDashboard() {
         const filterValue = document.getElementById('period-filter').value;
         let dataInicio = null, dataFim = null;
@@ -161,6 +331,13 @@
             document.getElementById('card-growth').innerHTML = '';
             document.getElementById('card-ticket').innerText = 'R$ 0,00';
             document.getElementById('card-split').innerText = '0% / 0%';
+            if (salesChart && paymentChart) {
+                salesChart.data.labels = [];
+                salesChart.data.datasets[0].data = [];
+                salesChart.update();
+                paymentChart.data.datasets[0].data = [0,0,0,0];
+                paymentChart.update();
+            }
             return;
         }
         // Faturamento total
@@ -187,9 +364,18 @@
         const splitDin = total ? Math.round(totalMoney/total*100) : 0;
         const splitCard = total ? Math.round(totalCard/total*100) : 0;
         document.getElementById('card-split').innerText = `${splitDin}% / ${splitCard}%`;
+        // Gráficos
+        if (!salesChart || !paymentChart) initCharts();
+        salesChart.data.labels = fechamentos.map(f => new Date(f.data).toLocaleDateString('pt-BR'));
+        salesChart.data.datasets[0].data = fechamentos.map(f => f.total_general || 0);
+        salesChart.update();
+        const debito = fechamentos.reduce((acc, f) => acc + (f.debito || 0), 0);
+        const credito = fechamentos.reduce((acc, f) => acc + (f.credito || 0), 0);
+        const pix = fechamentos.reduce((acc, f) => acc + (f.pix || 0), 0);
+        paymentChart.data.datasets[0].data = [totalMoney, debito, credito, pix];
+        paymentChart.update();
     }
-
-    // Atualiza dashboard ao trocar filtro
+    // Filtros do dashboard
     const periodFilter = document.getElementById('period-filter');
     if (periodFilter) {
         periodFilter.addEventListener('change', () => {
@@ -202,14 +388,65 @@
             updateDashboard();
         });
     }
-    // Atualiza dashboard ao mudar datas personalizadas
     const dataInicioInput = document.getElementById('data-inicio-grafico');
     const dataFimInput = document.getElementById('data-fim-grafico');
     if (dataInicioInput) dataInicioInput.addEventListener('change', updateDashboard);
     if (dataFimInput) dataFimInput.addEventListener('change', updateDashboard);
 
-    // Atualiza dashboard ao mostrar
-    // (Removido: duplicidade de showDashboard)
-    </script>
-</body>
-</html>
+    // --- EXPORTAÇÃO ---
+    document.getElementById('btn-export-excel').addEventListener('click', async function() {
+        const filterValue = document.getElementById('period-filter').value;
+        let dataInicio = null, dataFim = null;
+        if (filterValue === 'personalizado') {
+            dataInicio = document.getElementById('data-inicio-grafico').value;
+            dataFim = document.getElementById('data-fim-grafico').value;
+        }
+        const fechamentos = await fetchFechamentos(filterValue, dataInicio, dataFim);
+        if (!fechamentos.length) {
+            alert('Nenhum dado para exportar!');
+            return;
+        }
+        const ws = XLSX.utils.json_to_sheet(fechamentos.map(f => ({
+            Data: f.data,
+            'Total Dinheiro': f.total_money,
+            'Débito': f.debito,
+            'Crédito': f.credito,
+            'Pix': f.pix,
+            'Total Cartões': f.total_card,
+            'Total Geral': f.total_general
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Fechamentos');
+        XLSX.writeFile(wb, 'fechamentos.xlsx');
+    });
+    document.getElementById('btn-export-pdf').addEventListener('click', async function() {
+        const filterValue = document.getElementById('period-filter').value;
+        let dataInicio = null, dataFim = null;
+        if (filterValue === 'personalizado') {
+            dataInicio = document.getElementById('data-inicio-grafico').value;
+            dataFim = document.getElementById('data-fim-grafico').value;
+        }
+        const fechamentos = await fetchFechamentos(filterValue, dataInicio, dataFim);
+        if (!fechamentos.length) {
+            alert('Nenhum dado para exportar!');
+            return;
+        }
+        const doc = new jsPDF();
+        doc.text('Relatório de Fechamentos de Caixa', 14, 16);
+        autoTable(doc, {
+            head: [[
+                'Data', 'Total Dinheiro', 'Débito', 'Crédito', 'Pix', 'Total Cartões', 'Total Geral'
+            ]],
+            body: fechamentos.map(f => [
+                f.data,
+                f.total_money,
+                f.debito,
+                f.credito,
+                f.pix,
+                f.total_card,
+                f.total_general
+            ]),
+            startY: 22
+        });
+        doc.save('fechamentos.pdf');
+    });
