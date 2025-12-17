@@ -5,17 +5,17 @@ const errorMsg = document.getElementById('error-msg')
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault()
-    
     // O .trim() garante que não estamos enviando espaços vazios
     const email = document.getElementById('email').value.trim()
     const password = document.getElementById('password').value.trim()
 
-    console.log("Tentando logar com:", email) // Veja no console se o email está certo
+    console.log("Tentando logar com:", email)
 
     const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
     })
+    console.log('LOGIN:', data, error);
 
     if (error) {
         console.error("Erro Supabase:", error.message)
@@ -23,6 +23,6 @@ form.addEventListener('submit', async (e) => {
         errorMsg.classList.remove('hidden')
     } else {
         console.log("Sucesso!", data)
-        window.location.href = '/dashboard.html' // Redireciona
+        window.location.href = '/dashboard.html'
     }
 })

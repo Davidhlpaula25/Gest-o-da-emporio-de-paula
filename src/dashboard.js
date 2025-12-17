@@ -65,7 +65,8 @@ import { supabase } from './supabaseClient.js';
 
 // Checagem de sessão: só permite acesso se estiver logado
 (async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session }, error } = await supabase.auth.getSession();
+    console.log('SESSION:', session, error);
     if (!session) {
         window.location.href = '/';
     }
