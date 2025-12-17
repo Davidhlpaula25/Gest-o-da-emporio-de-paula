@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-900 flex items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-2xl w-96">
+    <div id="login-view" class="bg-white p-8 rounded-lg shadow-2xl w-96">
         <h1 class="text-2xl font-bold text-center mb-6 text-slate-800">Acesso Restrito</h1>
         <form id="login-form" class="space-y-4">
             <div>
@@ -23,6 +23,45 @@
         </form>
         <p id="error-msg" class="text-red-500 text-sm mt-4 text-center hidden"></p>
     </div>
-    <script type="module" src="/src/login.js"></script>
+    <div id="dashboard-view" style="display:none;"></div>
+    <script type="module">
+    import { supabase } from '/src/supabaseClient.js';
+    import '/src/dashboard.js';
+
+    const loginView = document.getElementById('login-view');
+    const dashboardView = document.getElementById('dashboard-view');
+    const form = document.getElementById('login-form');
+    const errorMsg = document.getElementById('error-msg');
+
+    async function showDashboard() {
+        // Carrega o HTML do dashboard como template
+        const resp = await fetch('/dashboard.html');
+        const html = await resp.text();
+        dashboardView.innerHTML = html;
+        loginView.style.display = 'none';
+        dashboardView.style.display = 'block';
+    }
+
+    // Checagem de sessão ao carregar
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+            showDashboard();
+        }
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+            errorMsg.textContent = "Erro: Email ou senha incorretos.";
+            errorMsg.classList.remove('hidden');
+        } else {
+            errorMsg.classList.add('hidden');
+            showDashboard();
+        }
+    });
+    </script>
 </body>
 </html>
