@@ -23,29 +23,71 @@
         </form>
         <p id="error-msg" class="text-red-500 text-sm mt-4 text-center hidden"></p>
     </div>
-    <div id="dashboard-view" style="display:none;"></div>
+    <div id="dashboard-view" style="display:none;">
+        <div class="p-8 max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-800">Dashboard do Caixa</h2>
+                <button id="logout-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">Sair</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white rounded shadow p-4">
+                    <div class="text-slate-500 text-xs">Faturamento</div>
+                    <div id="card-revenue" class="text-xl font-bold text-slate-800">R$ 0,00</div>
+                </div>
+                <div class="bg-white rounded shadow p-4">
+                    <div class="text-slate-500 text-xs">Crescimento</div>
+                    <div id="card-growth" class="text-sm font-bold text-green-500"></div>
+                </div>
+                <div class="bg-white rounded shadow p-4">
+                    <div class="text-slate-500 text-xs">Ticket Médio</div>
+                    <div id="card-ticket" class="text-xl font-bold text-slate-800">R$ 0,00</div>
+                </div>
+                <div class="bg-white rounded shadow p-4">
+                    <div class="text-slate-500 text-xs">Dinheiro / Cartão</div>
+                    <div id="card-split" class="text-xl font-bold text-slate-800">0% / 0%</div>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <div class="flex-1">
+                    <label class="block text-slate-700 text-sm mb-1">Período</label>
+                    <select id="period-filter" class="border rounded p-2 w-full">
+                        <option value="semana">Últimos 7 dias</option>
+                        <option value="mes">Este mês</option>
+                        <option value="ano">Este ano</option>
+                        <option value="personalizado">Personalizado</option>
+                    </select>
+                    <div id="filtro-datas-personalizado" class="flex gap-2 mt-2 hidden">
+                        <input type="date" id="data-inicio-grafico" class="border rounded p-2">
+                        <input type="date" id="data-fim-grafico" class="border rounded p-2">
+                    </div>
+                </div>
+            </div>
+            <!-- Aqui podem ser adicionados gráficos ou tabelas futuramente -->
+        </div>
+    </div>
     <script type="module">
     import { supabase } from '/src/supabaseClient.js';
-    import '/src/dashboard.js';
-
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
     const form = document.getElementById('login-form');
     const errorMsg = document.getElementById('error-msg');
+    const logoutBtn = document.getElementById('logout-btn');
 
-    async function showDashboard() {
-        // Carrega o HTML do dashboard como template
-        const resp = await fetch('/dashboard.html');
-        const html = await resp.text();
-        dashboardView.innerHTML = html;
+    function showDashboard() {
         loginView.style.display = 'none';
         dashboardView.style.display = 'block';
+    }
+    function showLogin() {
+        dashboardView.style.display = 'none';
+        loginView.style.display = 'block';
     }
 
     // Checagem de sessão ao carregar
     supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) {
             showDashboard();
+        } else {
+            showLogin();
         }
     });
 
@@ -62,6 +104,115 @@
             showDashboard();
         }
     });
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            showLogin();
+        });
+    }
+    // --- DASHBOARD: Buscar e exibir dados reais ---
+    function formatCurrency(value) {
+        return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    async function fetchFechamentos(periodo, dataInicio = null, dataFim = null) {
+        let fromDate = new Date();
+        let toDate = new Date();
+        if (periodo === 'semana') {
+            fromDate.setDate(fromDate.getDate() - 6);
+        } else if (periodo === 'mes') {
+            fromDate.setDate(1);
+        } else if (periodo === 'ano') {
+            fromDate = new Date(fromDate.getFullYear(), 0, 1);
+        } else if (periodo === 'personalizado' && dataInicio && dataFim) {
+            fromDate = new Date(dataInicio);
+            toDate = new Date(dataFim);
+        }
+        const fromStr = (periodo === 'personalizado' && dataInicio) ? dataInicio : fromDate.toISOString().split('T')[0];
+        const toStr = (periodo === 'personalizado' && dataFim) ? dataFim : toDate.toISOString().split('T')[0];
+        let query = supabase
+            .from('fechamentos')
+            .select('*')
+            .gte('data', fromStr)
+            .lte('data', toStr)
+            .order('data', { ascending: true });
+        const { data, error } = await query;
+        if (error) return [];
+        return data;
+    }
+
+    async function updateDashboard() {
+        const filterValue = document.getElementById('period-filter').value;
+        let dataInicio = null, dataFim = null;
+        if (filterValue === 'personalizado') {
+            dataInicio = document.getElementById('data-inicio-grafico').value;
+            dataFim = document.getElementById('data-fim-grafico').value;
+            if (!dataInicio || !dataFim) {
+                alert('Selecione o período desejado!');
+                return;
+            }
+        }
+        const fechamentos = await fetchFechamentos(filterValue, dataInicio, dataFim);
+        // Atualiza cards
+        if (!fechamentos.length) {
+            document.getElementById('card-revenue').innerText = 'R$ 0,00';
+            document.getElementById('card-growth').innerHTML = '';
+            document.getElementById('card-ticket').innerText = 'R$ 0,00';
+            document.getElementById('card-split').innerText = '0% / 0%';
+            return;
+        }
+        // Faturamento total
+        const total = fechamentos.reduce((acc, f) => acc + (f.total_general || 0), 0);
+        document.getElementById('card-revenue').innerText = formatCurrency(total);
+        // Crescimento (simples: compara último com penúltimo)
+        let growth = '';
+        let growthColor = 'text-green-500';
+        if (fechamentos.length > 1) {
+            const ult = fechamentos[fechamentos.length-1].total_general || 0;
+            const penult = fechamentos[fechamentos.length-2].total_general || 0;
+            const perc = penult ? ((ult-penult)/penult*100).toFixed(1) : 0;
+            growth = `${perc > 0 ? '+' : ''}${perc}% vs anterior`;
+            growthColor = perc < 0 ? 'text-red-500' : 'text-green-500';
+        }
+        document.getElementById('card-growth').innerHTML = growth ? `<span class="${growthColor}">${growth}</span>` : '';
+        document.getElementById('card-growth').className = `text-sm font-bold ${growthColor}`;
+        // Ticket médio
+        const ticket = total / fechamentos.length;
+        document.getElementById('card-ticket').innerText = formatCurrency(ticket);
+        // Split dinheiro/cartão
+        const totalMoney = fechamentos.reduce((acc, f) => acc + (f.total_money || 0), 0);
+        const totalCard = fechamentos.reduce((acc, f) => acc + (f.total_card || 0), 0);
+        const splitDin = total ? Math.round(totalMoney/total*100) : 0;
+        const splitCard = total ? Math.round(totalCard/total*100) : 0;
+        document.getElementById('card-split').innerText = `${splitDin}% / ${splitCard}%`;
+    }
+
+    // Atualiza dashboard ao trocar filtro
+    const periodFilter = document.getElementById('period-filter');
+    if (periodFilter) {
+        periodFilter.addEventListener('change', () => {
+            const filtroDatas = document.getElementById('filtro-datas-personalizado');
+            if (periodFilter.value === 'personalizado') {
+                filtroDatas.classList.remove('hidden');
+            } else {
+                filtroDatas.classList.add('hidden');
+            }
+            updateDashboard();
+        });
+    }
+    // Atualiza dashboard ao mudar datas personalizadas
+    const dataInicioInput = document.getElementById('data-inicio-grafico');
+    const dataFimInput = document.getElementById('data-fim-grafico');
+    if (dataInicioInput) dataInicioInput.addEventListener('change', updateDashboard);
+    if (dataFimInput) dataFimInput.addEventListener('change', updateDashboard);
+
+    // Atualiza dashboard ao mostrar
+    function showDashboard() {
+        loginView.style.display = 'none';
+        dashboardView.style.display = 'block';
+        updateDashboard();
+    }
     </script>
 </body>
 </html>
